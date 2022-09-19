@@ -1,0 +1,33 @@
+@import url('http://fonts.cdnfonts.com/css/gilroy-bold');
+
+@mixin flex_center() {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+@mixin align_content() {
+    width: 87vw;
+    margin: auto;
+}
+
+@mixin input_text() {
+    font-size: 13px;
+    font-weight: 900;
+    color: #afafad;
+}
+
+@mixin header_text() {
+    color: #464442de;
+    font-size: 15px;
+    font-weight: 600;
+}
+
+@mixin main_text_color() {
+    color: #282725cc;
+}
+
+@mixin buttons_And_input_berder() {
+    border: 1.5px solid #dfdfdfe6;
+    border-radius: 9px;
+}
