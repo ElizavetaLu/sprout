@@ -35,6 +35,15 @@
 
 
         <div class="right">
+            <div class="cartInfo" id="selectedProducts">
+                <div class="h4">My shopping cart:</div>
+                <div class="cards" id="placeForSelectedProducts"></div>
+                <div class="subtotal">
+                    <div class="text">Subtotal:</div>
+                    <div class="fullprice">$ <span id="subtotal">0</span></div>
+                </div>
+                <div class="btn">To checkout</div>
+            </div>
             <div class="bonus" id="test">
                 <div class="icon">
                     <img src="./Images/icons/star.svg" alt="">
@@ -55,12 +64,12 @@
                 </div>
             </div>
 
-            <div class="cart">
+            <div class="cart" id="cart">
                 <div class="icon">
                     <img src="./Images/icons/cart.svg" alt="">
                 </div>
 
-                <div class="text">Cart: 6</div>
+                <div class="text">Cart: <span id="amoutOfproductsInCart">0</span></div>
             </div>
 
             <div class="menu" id="mobileCategories">
@@ -480,16 +489,16 @@
 
 
             <div class="mainContent">
-                <div class="way">Homepage / Dried fruits</div>
+                <div class="way">Homepage / <span id="wayToChoosenCategory"></span></div>
 
-                <div class="h2">Dried fruits</div>
+                <div class="h2" id="choosenCategoryName"></div>
                 <div class="mobileFilter">
                     <div class="filter">Filter(2)</div>
                     <div class="text"> Showed 84 goods</div>
                 </div>
 
                 <div class="showedAmount">
-                    <div class="right"> Showed 84 goods</div>
+                    <div class="right"> Showed <span id="showedGoodsAmount"></span> goods</div>
 
                     <div class="sort">
                         <div class="text">Sort by</div>
@@ -522,7 +531,7 @@
                     <div class="clean">Clear all filters</div>
                 </div>
 
-                <div class="allcards" id="driedFruitsCategoryDiv">
+                <div class="allcards" id="placeForSelectedCategory">
 
                 </div>
 
