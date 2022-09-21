@@ -20,18 +20,15 @@ xhr.onload = () => {
     })
 
 
-
-
-
     //getting only data with special content type
     let categoriesArray = []
-    let smallCardsMETADATAarray = []
+    let fullProductsInfoArray = []
 
     allData.map(elem => {
         if (elem.sys.contentType.sys.id === 'pipkaStore') {
             categoriesArray.push(elem.fields)
         } else if (elem.sys.contentType.sys.id === 'smallProductCard') {
-            smallCardsMETADATAarray.push(elem)
+            fullProductsInfoArray.push(elem)
         }
     })
 
@@ -39,7 +36,7 @@ xhr.onload = () => {
     //create categories menu
     const categoriesHTML = (icon, tittle) => {
         return `
-                    <div class="row" id="${tittle}">
+                    <div class="row" id="popUpcategor${tittle}">
                         <div class="icon">
                             <img src="http:${icon}" alt="">
                         </div>
@@ -52,7 +49,8 @@ xhr.onload = () => {
 
     //show menu with categories
     const categoriesBtn = document.getElementById('categoriesBtn');
-    categoriesBtn.addEventListener('mouseenter', showCategories);
+    categoriesBtn.addEventListener('click', showCategories);
+
     function showCategories() {
         let categories = document.getElementById('categoriesPlace')
         if (categories.getAttribute('style') === null) {
@@ -65,156 +63,301 @@ xhr.onload = () => {
     }
 
 
+
+
+
+    //Open clicked category
+    document.querySelectorAll('div[id^=popUpcategor]').forEach(elem => elem.addEventListener('click', openCategory))
+    function openCategory() {
+        const category = this.getAttribute('id');
+        const nameOfChosenCategory = category.slice(12).toLowerCase();
+
+        function addEventListenerOnCardAndButton() {
+            const allButtons = document.querySelectorAll('#addingButton')
+            document.querySelectorAll('div[id^=smallCard]').forEach(card => card.onclick = showFullInfo)
+            allButtons.forEach(elem => elem.addEventListener('click', addProduct))
+        }
+
+        if (nameOfChosenCategory === 'nuts') {
+            createAndSortAllCards('nutsAllCards', nutsArray, 'placeForSelectedCategory')
+            addEventListenerOnCardAndButton()
+
+        } else if (nameOfChosenCategory === 'fruits') {
+            createAndSortAllCards('fruitsAllCards', fruitsArray, 'placeForSelectedCategory')
+            addEventListenerOnCardAndButton()
+
+        } else if (nameOfChosenCategory === 'dried fruits') {
+            createAndSortAllCards('driedFruitsAllCards', driedFruitsArray, 'placeForSelectedCategory')
+            addEventListenerOnCardAndButton()
+
+        } else if (nameOfChosenCategory === 'legumes') {
+            createAndSortAllCards('legumesAllCards', legumesArray, 'placeForSelectedCategory')
+            addEventListenerOnCardAndButton()
+
+
+        } else if (nameOfChosenCategory === 'berries') {
+            createAndSortAllCards('berriesAllCards', discountedGoodsArray, 'placeForSelectedCategory')
+            addEventListenerOnCardAndButton()
+        }
+
+        document.querySelector('.driedFruitCategory').style.display = 'block'
+        document.querySelector('.productCard').style.display = 'none'
+        document.querySelector('.homePage').style.display = 'none'
+    }
+
+
+
+
+
+
+
+
+
+
     //show mobilemenu with categories
     const mobileCategories = document.getElementById('mobileCategories');
     mobileCategories.addEventListener('click', showCategories);
 
-    
-
-    //show products of (ONLY 1 FOR NOW) cliked category
-    const driedFruits = document.getElementById('Dried fruits')
-    driedFruits.addEventListener('click', openCategory);
-    function openCategory() {
-        document.querySelector('.driedFruitCategory').style.display = 'block'
-        document.querySelector('.homePage').style.display = 'none'
-    }
 
     //get back on home page 
     const logo = document.getElementById('logo')
     logo.addEventListener('click', backToHomePage);
     function backToHomePage() {
         document.querySelector('.driedFruitCategory').style.display = 'none'
+        document.querySelector('.productCard').style.display = 'none'
         document.querySelector('.homePage').style.display = 'block'
     }
 
-
-
-
-
-
-
-
-    let discountedGoodsArray = []
-    let newAdditionArray = []
-    let driedFruitsArray = []
-    let peopleAlsoLikeArray = []
-
-
     // sort cards according to their tag 
-    smallCardsMETADATAarray.map(elem => {
-        const specificCardId = elem.metadata.tags[0].sys.id
+    let discountedGoodsArray = [];
+    let newAdditionArray = [];
+    let driedFruitsArray = [];
+    let peopleAlsoLikeArray = [];
+    let nutsArray = [];
+    let fruitsArray = [];
+    let berriesArray = [];
+    let legumesArray = [];
 
-        if (specificCardId === 'newAddition') {
-            newAdditionArray.push(elem.fields)
-        } else if (specificCardId === 'driedFruits') {
-            driedFruitsArray.push(elem.fields)
-        } else if (specificCardId === 'discountedGoods') {
-            discountedGoodsArray.push(elem.fields)
-        }
-
-
-        if (elem.metadata.tags.length === 2) {
-            if (elem.metadata.tags[1].sys.id === 'peopleAlsoLike') {
-                peopleAlsoLikeArray.push(elem.fields)
+    fullProductsInfoArray.map(element => {
+        const cardsTags = element.metadata.tags
+        cardsTags.map(elem => {
+            if (elem.sys.id === 'newAddition') {
+                newAdditionArray.push(element.fields)
+            } else if (elem.sys.id === 'driedFruits') {
+                driedFruitsArray.push(element.fields)
+            } else if (elem.sys.id === 'discountedGoods') {
+                discountedGoodsArray.push(element.fields)
+            } else if (elem.sys.id === 'fruits') {
+                fruitsArray.push(element.fields)
+            } else if (elem.sys.id === 'nuts') {
+                nutsArray.push(element.fields)
+            } else if (elem.sys.id === 'peopleAlsoLike') {
+                peopleAlsoLikeArray.push(element.fields)
+            } else if (elem.sys.id === 'berries') {
+                berriesArray.push(element.fields)
+            } else if (elem.sys.id === 'legumes') {
+                legumesArray.push(element.fields)
             }
 
-        }
+        })
 
     })
 
 
 
-    const smallCardHTML = (icon, currentRate, productName, price, oldPrice, salePrice, weight) => {
+    const smallCardHTML = (card) => {
+        const {
+            productName,
+            productPicture,
+            currentRate,
+            oldPrice,
+            salePrice,
+            price,
+            weight,
+            onSale
+        } = card
 
-        return `<div class="card" id="${productName}">
+        let first = `<div class="card" id="smallCard${productName}">
                     <div class="header">
                         <div class="pic">
-                            <img src="http:${icon}" alt="">
+                            <img src="http:${productPicture}" alt="">
                         </div>
                         <div class="info">
                             <div class="rate">
                                 <div class="icon">
                                     <img src="./Images/icons/rateStar.png" alt="">
                                 </div>
-
                                 <div class="grate"><span>${currentRate}</span>/5</div>
-                            </div>
+                            </div>`
 
-                            <div class="sale" id="onSale${productName}">ON SALE</div>
+        if (onSale) {
+            first += `<div class="sale" id="onSale${productName}">ON SALE</div>
                         </div>
                     </div>
+                            <div class="name">${productName}</div>
+                            <div class="cta">
+                            <button class="btn" id="addingButton">
+                                <div class="add">Add</div>
+                                <div class="plus">+</div>
+                            </button>
+                            <div class="pricesPace">
+                                <div class="oldPrice" id="oldPriceId${productName}">${oldPrice}</div>
+                                <div class="newPrice" id="newPriceId${productName}">$ ${salePrice}</div>
+                            `
 
+        } else {
+            first += `</div>
+                </div>
                     <div class="name">${productName}</div>
-
                     <div class="cta">
-                        <div class="btn">
-                            <div class="add">Add</div>
-                            <div class="plus">+</div>
-                        </div>
+                    <button class="btn" id="addingButton">
+                        <div class="add">Add</div>
+                        <div class="plus">+</div>
+                    </button>
+                <div class="pricesPace">
+                    <div class="price" id="priceId${productName}">$ ${'' + price}</div>
+                `
+        }
+        let second = `               <div class="weight">/${weight}g</div>
+                                </div>
+                            </div>
+                        </div>`
 
-                        <div class="pricesPace">
-                            <div class="price" id="priceId${productName}">$ ${price}</div>
-                            <div class="oldPrice" id="oldPriceId${productName}">${oldPrice}</div>
-                            <div class="newPrice" id="newPriceId${productName}">$ ${salePrice}</div>
-                            <div class="weight">/${weight}g</div>
-                        </div>
-                    </div>
-                </div>`
+        return first + second
     }
 
-    //getting all cards that aren't on sale
-    let notOnSaleCards = []
 
-    createAndSortAllCards('discountedGoodallCards', discountedGoodsArray, 'allCardsPlace')
-    createAndSortAllCards('newAdditionallCards', newAdditionArray, 'newAdditions')
-    createAndSortAllCards('driedFruitsAllCards', driedFruitsArray, 'driedFruitsCategoryDiv')
-    createAndSortAllCards('peopleAlsoLikeCards', peopleAlsoLikeArray, 'peopleAlsoLikeIt')
+    createAndSortAllCards('driedFruitsAllCards', discountedGoodsArray, 'allCardsPlace')
+    createAndSortAllCards('newAdditionAllCards', newAdditionArray, 'newAdditions')
+    // createAndSortAllCards('peopleAlsoLikeAllCards', peopleAlsoLikeArray, 'peopleAlsoLikeIt')
 
 
     function createAndSortAllCards(allCards, arrayWithCardsData, cardsDisplayId) {
-        allCards = arrayWithCardsData.map(card => {
-            if (!card.onSale) {
-                notOnSaleCards.push(card.productName)
+        //create and inner cards on their places
+        allCards = arrayWithCardsData.map(card => smallCardHTML(card)).join('');
+        document.getElementById(cardsDisplayId).innerHTML = allCards
+    }
+
+
+
+    const productInCartHTML = (card) => {
+        const {
+            productPicture,
+            productName,
+            price
+        } = card
+        return `<div class="card">
+                    <div class="pic">
+                        <img src="http:${productPicture}" alt="">
+                    </div>
+                    
+                        <div class="productInfo">
+                            <div class="name">${productName}</div>
+                            <div class="weight">
+                                <div class="sumb" id="minusInCart">-</div>
+                                <div class="amount"><span id="chosenAmountInCart">0.5</span> kg</div>
+                                <div class="sumb plus"id="plusInCart">+</div>
+                            </div>
+                        </div>
+                        <div class="right">
+                            <div class="icon" id="delete">
+                                <img src="./Images/icons/cross.png" alt="">
+                            </div>
+                            <div class="tottal">$ <span id="tottalInCart">${price}</span></div>
+                        </div>
+          
+                </div>`
+    }
+    const placeForSelectedProducts = document.getElementById('placeForSelectedProducts');
+
+
+
+    let selectedProductsId = []
+    let selectedProductsData = []
+
+    //add event listener on adding product buttons
+    const allButtons = document.querySelectorAll('#addingButton')
+
+    let placeForCurrentAmount = document.getElementById('amoutOfproductsInCart')
+    let currentAmount = Number(document.getElementById('amoutOfproductsInCart').innerText)
+
+
+    allButtons.forEach(elem => elem.addEventListener('click', addProduct))
+    function addProduct(e) {
+        currentAmount += 1
+        placeForCurrentAmount.innerText = currentAmount
+
+        e.stopPropagation()
+
+        const clickedProductId = (this.parentNode.parentNode.getAttribute('id'))
+
+        selectedProductsId.push(clickedProductId)
+
+        fullProductsInfoArray.map(elem => {
+
+            if (elem.fields.productName === clickedProductId.slice(9)) {
+                placeForSelectedProducts.insertAdjacentHTML('afterbegin', productInCartHTML(elem.card))
             }
-            return smallCardHTML(card.productPicture, card.currentRate, card.productName, card.price, card.oldPrice, card.salePrice, card.weight)
-        }).join('');
-        document.getElementById(cardsDisplayId).insertAdjacentHTML('beforeend', allCards)
+        })
+
+    }
 
 
-        notOnSaleCards.forEach(elem => {
-            document.getElementById(`onSale${elem}`).style.display = 'none';
-            document.getElementById(`oldPriceId${elem}`).style.display = 'none';
-            document.getElementById(`newPriceId${elem}`).style.display = 'none';
-            document.getElementById(`priceId${elem}`).style.display = 'flex';
+
+
+    //show cart content 
+    const cart = document.getElementById('cart');
+    const cartInfo = document.getElementById('selectedProducts');
+
+    cart.addEventListener('click', showCart);
+    function showCart() {
+        if (cartInfo.getAttribute('style') === null) {
+            cartInfo.style.display = 'flex'
+        } else if (cartInfo.getAttribute('style') === 'display: none;') {
+            cartInfo.style.display = 'flex'
+        } else {
+            cartInfo.style.display = 'none'
+        };
+    }
+
+
+
+
+
+
+
+    document.querySelectorAll('div[id^=smallCard]').forEach(card => card.onclick = showFullInfo)
+    function showFullInfo() {
+        const cardId = this.getAttribute('id')
+        fullProductsInfoArray.map(elem => {
+            if (cardId.slice(9) === elem.fields.productName) {
+                document.querySelector('.homePage').style.display = 'none'
+                document.querySelector('.productCard').style.display = 'block'
+
+                const productCardPlace = document.querySelector('.productCard')
+                productCardPlace.innerHTML = productCardHTML('Dried fruits', elem.fields.productPicture, elem.fields.currentRate, elem.fields.productName, elem.fields.composition, elem.fields.country, elem.fields.brand, elem.fields.price, elem.fields.weight, elem.fields.description)
+            }
 
         })
+
     }
 
 
-
-
-
-
-    const apricCard = document.getElementById('Gold apricots Jumbo<br>Limited edition')
-    apricCard.addEventListener('click', showFullInfo);
-    function showFullInfo() {
-        document.querySelector('.driedFruitCategory').style.display = 'none'
-        document.querySelector('.productCard').style.display = 'block'
-    }
-
-
-
-
-
-
-
-
-    let productInfo = (allData.find(elem => elem.sys.contentType.sys.id === 'product')).fields
-
-
-    const productCardHTML = (category, image, currentRate, title, composition, country, brand, price, weight, description) => {
+    const productCardHTML = (product) => {
+        const {
+            category,
+            productPicture,
+            currentRate,
+            productName,
+            composition,
+            country,
+            brand,
+            price,
+            weight,
+            description
+        } = product
         return `<section class="productInfo">
-                <div class="way">Homepage / ${category} /${title}</div>
+                <div class="way">Homepage / ${category} /${productName}</div>
 
                 <div class="mainContent">
                     <div class="left">
@@ -226,7 +369,7 @@ xhr.onload = () => {
                         </div>
 
                         <div class="image">
-                            <img src="http:${image}" alt="">
+                            <img src="http:${productPicture}" alt="">
                         </div>
 
                         <div class="row2">
@@ -319,7 +462,7 @@ xhr.onload = () => {
 
 
                     <div class="right">
-                        <div class="h2">${title}</div>
+                        <div class="h2">${productName}</div>
 
                         <div class="delivInfo">
                             <div class="inStock">
@@ -347,7 +490,7 @@ xhr.onload = () => {
 
                         <div class="purchase">
                             <div class="price">
-                                <div class="tottal">Tottal: $<span id="tottalPrice">10.80</span></div>
+                                <div class="tottal">Tottal: $<span id="tottalPrice">${price * 2}</span></div>
                                 <div class="priceFor">$ <span id="productPriceForX">${price}</span> / <span id="weight">${weight}</span>g</div>
                             </div>
 
@@ -357,7 +500,7 @@ xhr.onload = () => {
                                 <div class="sumb" id="plus">+</div>
                             </div>
 
-                            <div class="addBtn">
+                            <div class="addBtn" id="addToCartButton">
                                 <div class="text">Add to cart</div>
                                 <div class="icon">
                                     <img src="./Images/icons/whitePlus.png" alt="">
@@ -403,47 +546,142 @@ xhr.onload = () => {
     }
 
 
-    const productCardPlace = document.querySelector('.productCard')
-    productCardPlace.insertAdjacentHTML('afterbegin', productCardHTML('Dried fruits', productInfo.productPicture, productInfo.currentRate, productInfo.tittle, productInfo.compostition, productInfo.country, productInfo.brand, productInfo.price, productInfo.weight, productInfo.description.content[0].content[0].value)
-    )
+
+    function addProduct(e) {
+
+        currentAmount += 1
+        placeForCurrentAmount.innerText = currentAmount
+        e.stopPropagation()
+        const clickedProductId = (this.parentNode.parentNode.getAttribute('id'))
+
+
+        fullProductsInfoArray.map(elem => {
 
 
 
-    //count tottal price of product
-    const tottalPricePlace = document.getElementById('tottalPrice')
-    let tottalPrice = Number(document.getElementById('tottalPrice').innerHTML)
+            if (elem.fields.productName === clickedProductId.slice(9)) {
+                selectedProductsId.map(element => {
+                    if (element === clickedProductId) {
+                        console.log('already added')
+                    }
+                })
+                selectedProductsId.push(clickedProductId)
+                selectedProductsData.push(elem.fields)
 
-    const price = Number(document.getElementById('productPriceForX').innerHTML)
-    
-    let selectedWeightPlace = document.getElementById('number')
-    let selectedWeight = Number(document.getElementById('number').innerHTML)
+                console.log(Number(document.getElementById('subtotal').innerHTML))
+                let subtotalPlace = document.getElementById('subtotal')
+                let subtotal = Number(document.getElementById('subtotal').innerHTML)
+
+                subtotal +=elem.fields.price
+                subtotalPlace.textContent = subtotal.toFixed(2)
 
 
-    const minus = document.getElementById('minus')
-    minus.addEventListener('click', decrement)
-    function decrement() {
-        if (selectedWeight) {
-            tottalPrice -= price
-            selectedWeight -=0.5
-        selectedWeightPlace.textContent = selectedWeight.toFixed(1)
+                let card = elem.fields
+                placeForSelectedProducts.insertAdjacentHTML('afterbegin', productInCartHTML(card))
+
+
+                // count tottal price of product
+                const tottalPricePlace = document.getElementById('tottalInCart')
+                let tottalPrice = Number(document.getElementById('tottalInCart').innerText)
+
+                const price = elem.fields.salePrice
+                let selectedWeightPlace = document.getElementById('chosenAmountInCart')
+                let selectedWeight = Number(document.getElementById('chosenAmountInCart').innerText)
+
+
+                const minus = document.getElementById('minusInCart')
+                minus.addEventListener('click', decrement)
+                function decrement() {
+                    if (selectedWeight) {
+                        tottalPrice -= price
+                        selectedWeight -= 0.5
+                        selectedWeightPlace.textContent = selectedWeight.toFixed(1)
+                        tottalPricePlace.textContent = tottalPrice.toFixed(2)
+                    } else return
+
+                }
+
+                const plus = document.getElementById('plusInCart')
+                plus.addEventListener('click', increment)
+                function increment() {
+                    tottalPrice += price
+                    selectedWeight += 0.5
+                    selectedWeightPlace.textContent = selectedWeight.toFixed(1)
+                    tottalPricePlace.textContent = tottalPrice.toFixed(2)
+                }
+
+
+
+                const delBut = document.getElementById('delete')
+                delBut.addEventListener('click', deleteCard)
+                function deleteCard() {
+                    this.parentNode.parentNode.remove()
+                    currentAmount -= 1
+                    placeForCurrentAmount.innerText = currentAmount
+                }
+
+
+            }
+        })
+
+    }
+
+    function showFullInfo() {
+        const cardId = this.getAttribute('id')
+
+        fullProductsInfoArray.map(elem => {
+            if (cardId.slice(9) === elem.fields.productName) {
+                document.querySelector('.homePage').style.display = 'none'
+                document.querySelector('.driedFruitCategory').style.display = 'none'
+                document.querySelector('.productCard').style.display = 'block'
+                let product = elem.fields
+                const productCardPlace = document.querySelector('.productCard')
+                productCardPlace.innerHTML = productCardHTML(product)
+            }
+
+        })
+
+        //add to cart
+        const addProductButton = document.getElementById('addToCartButton')
+        addProductButton.addEventListener('click', addCurrentProduct)
+        function addCurrentProduct() {
+            console.log('click')
+        }
+
+
+        // count tottal price of 1 product
+        const tottalPricePlace = document.getElementById('tottalPrice')
+        let tottalPrice = Number(document.getElementById('tottalPrice').innerText)
+
+        const price = Number(document.getElementById('productPriceForX').innerText)
+
+        let selectedWeightPlace = document.getElementById('number')
+        let selectedWeight = Number(document.getElementById('number').innerText)
+
+
+        const minus = document.getElementById('minus')
+        minus.addEventListener('click', decrement)
+        function decrement() {
+            if (selectedWeight) {
+                tottalPrice -= price
+                selectedWeight -= 0.5
+                selectedWeightPlace.textContent = selectedWeight.toFixed(1)
+                tottalPricePlace.textContent = tottalPrice.toFixed(2)
+            } else return
+
+        }
+
+        const plus = document.getElementById('plus')
+        plus.addEventListener('click', increment)
+        function increment() {
+            tottalPrice += price
+            selectedWeight += 0.5
+            selectedWeightPlace.textContent = selectedWeight.toFixed(1)
             tottalPricePlace.textContent = tottalPrice.toFixed(2)
-        } else return
+        }
+
+
 
     }
-
-    const plus = document.getElementById('plus')
-    plus.addEventListener('click', increment)
-    function increment() {
-        tottalPrice += price
-        selectedWeight +=0.5
-        selectedWeightPlace.textContent = selectedWeight.toFixed(1)
-        tottalPricePlace.textContent = tottalPrice.toFixed(2)
-    }
-
 }
-
 xhr.send()
-
-
-
-
